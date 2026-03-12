@@ -1,88 +1,45 @@
-import { GetServerSideProps, InferGetServerSidePropsType } from "next"
-import { useEffect, useState } from "react"
-
-interface ILogin {
-    user: IUser
-}
-
-interface IUser {
-    id: number
-    name: string
-    username: string
-    email: string
-    address: {
-        street: string
-        suite: string
-        city: string
-        zipcode: string
-        geo: { lat: string; lng: string }
-    }
-    phone: string
-    website: string
-    company: {
-        name: string
-        catchPhrase: string
-        bs: string
-    }
-}
-
-export const getServerSideProps: GetServerSideProps<ILogin> = async () => {
-    try {
-        // const response = await fetch('https://jsonplaceholder.typicode.com/users/1')
-        // const data = await response.json()
-
-        // console.log('data', data)
-        return {
-            props: {
-                user: {
-                    name: 'Daniel',
-                    email: '09115817@senaimgdocente.com.br',
-                    company: {
-                        name: 'Senai'
-                    }
-                }
-            }
-        }
-    } catch (error) {
-        console.error(error.response)
-        return {
-            props: {
-                user: {}
-            }
-        }
-    }
-}
-
+import { useState } from "react";
 
 export default function Login() {
-    // export default function Login({ user }: InferGetServerSidePropsType<typeof getServerSideProps>) {
-    // console.log('user', user)
-    const [loading, setLoading] = useState(true)
-    const [user, setUser] = useState()
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
 
-    useEffect(() => {
-        const usandoApiNext = async () => {
-            const response = await fetch('http://localhost:3000/api/user?id=1&nome=daniel&company=Senai&email=09115817@senaimgdocente.com.br')
-            const data = await response.json()
-            setUser(data)
-            console.log(data)
-        }
-        usandoApiNext()
-        setLoading(false)
-    }, [])
+    async function submitLogin() {
+        const response = await fetch ('http://localhost:3000/api/login', {
+            method: 'POST',
+            body: JSON.stringify({ username, password })
+        })
 
-    console.log('user', user)
-
+        const data = await response.json()
+        console.log('Data: ', data)
+    } catch (error) {
+        console.error(error)
+        
+    }
     return (
-        <>
-            {loading ?
-                <h1>Carregando</h1> :
-                <>
-                    <h1>{user && user.nome}</h1>
-                    <p>{user && user.email}</p>
-                    <p>{user && user.company}</p>
-                </>
-            }
-        </>
+        <div className="w-full h-screen flex items-center justify-center">
+            <div className=" min-w-70 border border-solid border-zinc-50 shadow-2xl rounded-lg p-8">
+                <h1 className="text-4xl text-zinc-100 mb-10">Página de Login</h1>
+                <div className="flex flex-col items-start justify-center">
+                    <label>Username</label>
+                    <input
+                        type="text"
+                        className="border border-solid border-zinc-700 p-2 text-lg text-zinc-200 rounded-md w-full"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                    />
+                </div>
+                <div className="flex flex-col items-start justify-center mt-2">
+                    <label>Password</label>
+                    <input
+                        type="password"
+                        className="border border-solid border-zinc-700 p-2 text-lg text-zinc-200 rounded-md w-full"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                    />
+                </div>
+                <button onClick={submitLogin} className="w-full border border-solid border-zinc-300 rounded-md mt-10 py-2 hover:border-zinc-200 hover:bg-sky-500 transition-all delay-100">Logar</button>
+            </div>
+        </div>
     )
 }
